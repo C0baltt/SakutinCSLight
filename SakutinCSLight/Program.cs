@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Threading;
 
 namespace SakutinCSLight
 {
@@ -6,40 +8,135 @@ namespace SakutinCSLight
     {
         static void Main(string[] args)
         {
+            Console.CursorVisible = false;
 
-            int[] array1 = new int[5];
-            int[,] array2 = new int[5, 5];
-            array1 = Resize(array1, 6);
-            array2 = Resize(array2, 10, 10);
-            Console.WriteLine(array1.Length);
-            Console.WriteLine(array2.Length);
+            char[,] map = ReadMap("map.txt");
+            ConsoleKeyInfo pressedKey = new ConsoleKeyInfo('w', ConsoleKey.W, false, false, false);
+
+            //Task.Run(() =>
+            //{
+            //    while (true)
+            //    {
+            //    pressedKey = Console.ReadKey();
+            //    }
+            //});
+
+            int pacmanX = 1;
+            int pacmanY = 1;
+            int score = 0;
+            int steps = 0;
+
+            while (true)
+            {
+                Console.Clear();
+
+                Console.ForegroundColor = ConsoleColor.Blue;
+                DrawMap(map);
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.SetCursorPosition(pacmanX, pacmanY);
+                Console.Write("@");
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.SetCursorPosition(32, 0);
+                Console.Write($"Score: {score}");
+                
+                Console.SetCursorPosition(32, 1);
+                Console.Write($"Steps: {steps}");
+
+                pressedKey = Console.ReadKey();
+
+                HandleInput(pressedKey, ref pacmanX, ref pacmanY, map, ref score, ref steps);
+
+               
+
+                //Thread.Sleep(1000);
+            }
         }
 
-        static int[] Resize(int[] array, int size)
+        private static char[,] ReadMap(string path)
         {
-            int[] tempArray = new int[size];
-            for (int i = 0; i < array.Length; i++)
+            string[] file = File.ReadAllLines("map.txt");
+
+            char[,] map = new char[GetMaxLenghtOfLine(file), file.Length];
+
+            for (int x = 0; x < map.GetLength(0); x++)
+                for (int y = 0; y < map.GetLength(1); y++)
+                    map[x, y] = file[y][x];
+
+            return map;
+        }
+
+        private static void DrawMap(char[,] map)
+        {
+            for (int y = 0; y < map.GetLength(1); y++)
             {
-                tempArray[i] = array[i];
+                for (int x = 0; x < map.GetLength(0); x++)
+                {
+                    Console.Write(map[x, y]);
+                }
+                Console.Write("\n");
             }
 
-            array = tempArray;
-            return array;
+
         }
 
-        static int[,] Resize(int[,] array, int x, int y)
+        private static void HandleInput(ConsoleKeyInfo pressedKey, ref int pacmanX, ref int pacmanY, char[,] map, ref int score, ref int steps)
         {
-            int[,] tempArray = new int[x, y];
-            for(int i= 0; i < array.GetLength(0); i++)
+            int[] direction = GetDirection(pressedKey);
+
+            int nextPacmanPositionX = pacmanX + direction[0];
+            int nextPacmanPositionY = pacmanY + direction[1];
+
+            char nextCell = map[nextPacmanPositionX, nextPacmanPositionY];
+
+            if (nextCell == ' ' || nextCell == '.')
             {
-                for (int j = 0; j<array.GetLength(1); j++)
+                pacmanX = nextPacmanPositionX;
+                pacmanY = nextPacmanPositionY;
+                steps++;
+                if(nextCell == '.')
                 {
-                    tempArray[i, j] = array[i, j];
+                    score++;
+                    map[nextPacmanPositionX, nextPacmanPositionY] = ' ';
                 }
             }
-
-            array = tempArray;
-            return array;
         }
+
+        private static int[] GetDirection(ConsoleKeyInfo pressedKey)
+        {
+            int[] direction = { 0, 0 };
+
+            if (pressedKey.Key == ConsoleKey.UpArrow)
+            {
+                direction[1] = -1;
+            }
+            else if (pressedKey.Key == ConsoleKey.DownArrow)
+            {
+                direction[1] = 1;
+            }
+            else if (pressedKey.Key == ConsoleKey.LeftArrow)
+            {
+                direction[0] = -1;
+            }
+            else if (pressedKey.Key == ConsoleKey.RightArrow)
+            {
+                direction[0] = 1;
+            }
+
+            return direction;
+        }
+
+        private static int GetMaxLenghtOfLine(string[] lines)
+        {
+            int maxLength = lines[0].Length;
+
+            foreach (var line in lines)
+                if (line.Length > maxLength)
+                    maxLength = line.Length;
+
+            return maxLength;
+        }
+
     }
 }
