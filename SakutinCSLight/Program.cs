@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SakutinCSLight
 {
@@ -13,13 +14,13 @@ namespace SakutinCSLight
             char[,] map = ReadMap("map.txt");
             ConsoleKeyInfo pressedKey = new ConsoleKeyInfo('w', ConsoleKey.W, false, false, false);
 
-            //Task.Run(() =>
-            //{
-            //    while (true)
-            //    {
-            //    pressedKey = Console.ReadKey();
-            //    }
-            //});
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    pressedKey = Console.ReadKey();
+                }
+            });
 
             int pacmanX = 1;
             int pacmanY = 1;
@@ -40,7 +41,7 @@ namespace SakutinCSLight
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.SetCursorPosition(32, 0);
                 Console.Write($"Score: {score}");
-                
+
                 Console.SetCursorPosition(32, 1);
                 Console.Write($"Steps: {steps}");
 
@@ -48,9 +49,7 @@ namespace SakutinCSLight
 
                 HandleInput(pressedKey, ref pacmanX, ref pacmanY, map, ref score, ref steps);
 
-               
-
-                //Thread.Sleep(1000);
+                Thread.Sleep(300);
             }
         }
 
@@ -94,8 +93,10 @@ namespace SakutinCSLight
             {
                 pacmanX = nextPacmanPositionX;
                 pacmanY = nextPacmanPositionY;
+
                 steps++;
-                if(nextCell == '.')
+
+                if (nextCell == '.')
                 {
                     score++;
                     map[nextPacmanPositionX, nextPacmanPositionY] = ' ';
