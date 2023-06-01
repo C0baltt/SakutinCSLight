@@ -2,44 +2,74 @@
 
 namespace SakutinCSLight
 {
-    class Program
+    internal class Program
     {
         static void Main(string[] args)
         {
+            bool isOpen = true;
 
-            int[] array1 = new int[5];
-            int[,] array2 = new int[5, 5];
-            array1 = Resize(array1, 6);
-            array2 = Resize(array2, 10, 10);
-            Console.WriteLine(array1.Length);
-            Console.WriteLine(array2.Length);
-        }
+            Table[] tables = { new Table(1, 4), new Table(2, 8), new Table(3, 10) };
 
-        static int[] Resize(int[] array, int size)
-        {
-            int[] tempArray = new int[size];
-            for (int i = 0; i < array.Length; i++)
+            while (isOpen)
             {
-                tempArray[i] = array[i];
-            }
+                Console.WriteLine("Администрирование кафе.\n");
 
-            array = tempArray;
-            return array;
-        }
-
-        static int[,] Resize(int[,] array, int x, int y)
-        {
-            int[,] tempArray = new int[x, y];
-            for(int i= 0; i < array.GetLength(0); i++)
-            {
-                for (int j = 0; j<array.GetLength(1); j++)
+                for (int i = 0; i < tables.Length; i++)
                 {
-                    tempArray[i, j] = array[i, j];
+                    tables[i].ShowInfo();
                 }
-            }
 
-            array = tempArray;
-            return array;
+                Console.Write("\nВведите номер стола: ");
+                int wishTable = Convert.ToInt32(Console.ReadLine()) - 1;
+                Console.Write("\nВведите количество мест для брони: ");
+                int desiredPlaces = Convert.ToInt32(Console.ReadLine());
+
+                bool isReservationCompleted = tables[wishTable].Reserve(desiredPlaces);
+
+                if (isReservationCompleted)
+                {
+                    Console.WriteLine("Бронь прошла успешно!");
+                }
+                else
+                {
+                    Console.WriteLine("Бронь не прошла. Недостаточно мест.");
+                }
+
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
+    }
+
+    class Table
+    {
+        public int Number;
+        public int MaxPlaces;
+        public int FreePlaces;
+
+        public Table(int number, int maxPlaces)
+        {
+            Number = number;
+            MaxPlaces = maxPlaces;
+            FreePlaces = maxPlaces;
+        }
+
+        public void ShowInfo()
+        {
+            Console.WriteLine($"Стол: {Number}. Свободно мест: {FreePlaces} из {MaxPlaces} .");
+        }
+
+        public bool Reserve(int places)
+        {
+            if (FreePlaces >= places)
+            {
+                FreePlaces -= places;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
